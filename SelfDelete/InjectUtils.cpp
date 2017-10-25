@@ -1,4 +1,4 @@
-#include "InjectUtils.h"
+﻿#include "InjectUtils.h"
 
 HANDLE MakeProcess(bool suspended)
 {
@@ -22,6 +22,7 @@ int RunRemoteFunction(HANDLE process, void* function, int functionSize, void* da
 {
 	DWORD retVal;
 
+	// Проверките за грешки малко ги няма
 	void* functionAddr = VirtualAllocEx(process, 0, functionSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	WriteProcessMemory(process, functionAddr, function, functionSize, &retVal);
 	VirtualProtectEx(process, functionAddr, functionSize, PAGE_EXECUTE_READ, &retVal);

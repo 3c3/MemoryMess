@@ -1,10 +1,13 @@
+﻿// Самоизтриваща се програма с инжектиране
+// Първо проработи на 25.10.2017 (100 години след октомврийската революция)
+
 #include <iostream>
 #include <Windows.h>
 #include "InjectUtils.h"
 
 using namespace std;
 
-// Without closing notepad 
+// Вариант, който оставя Notepad-а отворен
 
 //struct InjectData
 //{
@@ -12,7 +15,7 @@ using namespace std;
 //	void* deleteFileAddr;
 //	void* szFileName;
 //};
-/* NASM code:
+/* NASM код:
 [bits 32]
 mov edx, [ebp+8]
 
@@ -28,7 +31,7 @@ ret 4
 //char bytecode[] = { 0x8B, 0x55, 0x08, 0x68, 0xF4, 0x01, 0x00, 0x00, 0xFF, 0x12, 0x8B, 0x55, 0x08, 0xFF, 0x72, 0x08, 0xFF, 0x52, 0x04, 0xC2, 0x04, 0x00 };
 
 // ------------------------------------------
-// With notepad closing
+// Със затваряне на Notepad-a
 
 struct InjectData
 {
@@ -39,7 +42,7 @@ struct InjectData
 	void* terminateProcAddr;	// +16
 };
 
-/* NASM code: 
+/* NASM код: 
 [bits 32]
 mov edx, [ebp+8]
 
@@ -69,11 +72,11 @@ int main()
 {
 	MessageBox(0, "Goodbye cruel world", "Final message", MB_OK);
 
-	char buffer[256];
+	char exeFileName[256];
 
-	if (GetModuleFileName(0, buffer, 256))
+	if (GetModuleFileName(0, exeFileName, 256))
 	{
-		cout << "module: " << buffer << endl;
+		cout << "module: " << exeFileName << endl;
 	}
 	else
 	{
@@ -87,16 +90,11 @@ int main()
 	iData.getCurrentProcAddr = GetCurrentProcess;
 	iData.terminateProcAddr = TerminateProcess;
 
-	HANDLE proc = MakeProcess(true);
+	HANDLE proc = MakeProcess(true); // Процеса работник (суспендиран Notepad)
 
-	iData.szFileName = InjectString(proc, buffer);
+	iData.szFileName = InjectString(proc, exeFileName);
 
 	int retVal = RunRemoteFunction(proc, bytecode, sizeof(bytecode), &iData, sizeof(iData), false);
 
-	//cout << retVal << endl;
-
-	//TerminateProcess(proc, 0);
-
-	//system("pause");
 	return 0;
 }
